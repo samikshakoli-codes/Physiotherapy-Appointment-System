@@ -64,7 +64,10 @@ export const patientProfiles = pgTable("patient_profiles", {
 
   userId: uuid("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" })
+    .references(() => users.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    })
     .unique(),
 
   age: integer("age").notNull(),
@@ -81,7 +84,10 @@ export const physiotherapistProfiles = pgTable(
 
     userId: uuid("user_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" })
+      .references(() => users.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      })
       .unique(),
 
     qualification: varchar("qualification", { length: 200 }).notNull(),
@@ -104,7 +110,9 @@ export const verificationTokens = pgTable("verification_tokens", {
 
   userId: uuid("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => users.id, {
+      onDelete: "cascade",
+    }),
 
   token: varchar("token", { length: 255 }).notNull().unique(),
 
@@ -122,6 +130,7 @@ export const availabilitySlots = pgTable(
       .notNull()
       .references(() => physiotherapistProfiles.id, {
         onDelete: "cascade",
+        onUpdate: "cascade",
       }),
 
     slotDate: date("slot_date").notNull(),
@@ -184,7 +193,9 @@ export const payments = pgTable("payments", {
 
   appointmentId: uuid("appointment_id")
     .notNull()
-    .references(() => appointments.id, { onDelete: "cascade" })
+    .references(() => appointments.id, {
+      onDelete: "cascade",
+    })
     .unique(),
 
   amount: decimal("amount", {
