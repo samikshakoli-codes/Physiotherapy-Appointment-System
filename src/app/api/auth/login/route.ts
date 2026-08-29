@@ -22,9 +22,11 @@ export async function POST(request: Request) {
 
     const { email, password } = result.data;
 
+
     const user = await db.query.users.findFirst({
       where: eq(users.email, email.toLowerCase()),
     });
+
 
     if (!user) {
       return NextResponse.json(
@@ -44,6 +46,7 @@ export async function POST(request: Request) {
       password,
       user.passwordHash
     );
+
 
     if (!passwordValid) {
       return NextResponse.json(

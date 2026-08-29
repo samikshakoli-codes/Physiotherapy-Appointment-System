@@ -12,6 +12,10 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 
+/* =========================
+   ENUMS
+========================= */
+
 export const userRoleEnum = pgEnum("user_role", [
   "PATIENT",
   "PHYSIOTHERAPIST",
@@ -41,6 +45,10 @@ export const paymentStatusEnum = pgEnum("payment_status", [
   "FAILED",
 ]);
 
+/* =========================
+   USERS
+========================= */
+
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
 
@@ -59,6 +67,10 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+/* =========================
+   PATIENT PROFILES
+========================= */
+
 export const patientProfiles = pgTable("patient_profiles", {
   id: uuid("id").defaultRandom().primaryKey(),
 
@@ -76,6 +88,10 @@ export const patientProfiles = pgTable("patient_profiles", {
 
   contactNumber: varchar("contact_number", { length: 20 }).notNull(),
 });
+
+/* =========================
+   PHYSIOTHERAPIST PROFILES
+========================= */
 
 export const physiotherapistProfiles = pgTable(
   "physiotherapist_profiles",
@@ -105,6 +121,10 @@ export const physiotherapistProfiles = pgTable(
   }
 );
 
+/* =========================
+   EMAIL VERIFICATION
+========================= */
+
 export const verificationTokens = pgTable("verification_tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
 
@@ -120,6 +140,10 @@ export const verificationTokens = pgTable("verification_tokens", {
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+/* =========================
+   PHYSIOTHERAPIST AVAILABILITY
+========================= */
 
 export const availabilitySlots = pgTable(
   "availability_slots",
@@ -139,9 +163,13 @@ export const availabilitySlots = pgTable(
 
     endTime: time("end_time").notNull(),
 
-    status: slotStatusEnum("status").default("AVAILABLE").notNull(),
+    status: slotStatusEnum("status")
+      .default("AVAILABLE")
+      .notNull(),
 
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at")
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     unique("unique_physio_slot").on(
@@ -152,6 +180,42 @@ export const availabilitySlots = pgTable(
     ),
   ]
 );
+
+/* =========================
+   PHYSIOTHERAPIST DAYS OFF
+========================= */
+
+export const physiotherapistDaysOff = pgTable(
+  "physiotherapist_days_off",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    physiotherapistId: uuid("physiotherapist_id")
+      .notNull()
+      .references(() => physiotherapistProfiles.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+
+    offDate: date("off_date").notNull(),
+
+    reason: varchar("reason", { length: 255 }),
+
+    createdAt: timestamp("created_at")
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    unique("unique_physio_day_off").on(
+      table.physiotherapistId,
+      table.offDate
+    ),
+  ]
+);
+
+/* =========================
+   APPOINTMENTS
+========================= */
 
 export const appointments = pgTable("appointments", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -166,7 +230,8 @@ export const appointments = pgTable("appointments", {
 
   slotId: uuid("slot_id")
     .notNull()
-    .references(() => availabilitySlots.id),
+    .references(() => availabilitySlots.id)
+    .unique(),
 
   appointmentDate: date("appointment_date").notNull(),
 
@@ -174,19 +239,40 @@ export const appointments = pgTable("appointments", {
 
   endTime: time("end_time").notNull(),
 
+  /*
+    Snapshot of the fee at booking time.
+    If the physiotherapist later changes their fee,
+    old appointments keep their original amount.
+  */
   amount: decimal("amount", {
     precision: 10,
     scale: 2,
   }).notNull(),
 
+  /*
+    Determines the order in which appointments
+    appear on the physiotherapist dashboard.
+  */
+  sequence: integer("sequence")
+    .default(1)
+    .notNull(),
+
   status: appointmentStatusEnum("status")
     .default("CONFIRMED")
     .notNull(),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at")
+    .defaultNow()
+    .notNull(),
 
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull(),
 });
+
+/* =========================
+   PAYMENTS
+========================= */
 
 export const payments = pgTable("payments", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -211,5 +297,7 @@ export const payments = pgTable("payments", {
     length: 255,
   }),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at")
+    .defaultNow()
+    .notNull(),
 });

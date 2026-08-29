@@ -20,6 +20,8 @@ import {
   getVerificationExpiry,
 } from "@/lib/verification";
 
+import resend from "@/lib/resend";
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -73,6 +75,29 @@ export async function POST(request: Request) {
         token,
         expiresAt: getVerificationExpiry(),
       });
+
+      const verificationUrl =
+  `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/verify?token=${token}`;
+
+await resend.emails.send({
+  from: "onboarding@resend.dev",
+  to: process.env.RESEND_TEST_EMAIL!,
+  subject: "Verify your PhysioCare account",
+  html: `
+    <h2>Welcome to PhysioCare</h2>
+    <p>Hello ${data.name},</p>
+
+    <p>Please verify your email address to activate your account.</p>
+
+    <p>
+      <a href="${verificationUrl}">
+        Verify Email Address
+      </a>
+    </p>
+
+    <p>This verification link will expire in 24 hours.</p>
+  `,
+});
 
       return NextResponse.json(
         {
@@ -134,6 +159,29 @@ export async function POST(request: Request) {
         token,
         expiresAt: getVerificationExpiry(),
       });
+
+      const verificationUrl =
+  `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/verify?token=${token}`;
+
+await resend.emails.send({
+  from: "onboarding@resend.dev",
+  to: process.env.RESEND_TEST_EMAIL!,
+  subject: "Verify your PhysioCare account",
+  html: `
+    <h2>Welcome to PhysioCare</h2>
+    <p>Hello ${data.name},</p>
+
+    <p>Please verify your email address to activate your account.</p>
+
+    <p>
+      <a href="${verificationUrl}">
+        Verify Email Address
+      </a>
+    </p>
+
+    <p>This verification link will expire in 24 hours.</p>
+  `,
+});
 
       return NextResponse.json(
         {

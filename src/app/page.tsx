@@ -108,7 +108,7 @@ export default function Home() {
                   <div className="mt-5 grid grid-cols-2 gap-3">
                     <div className="rounded-xl bg-[#f7fafc] p-3">
                       <p className="text-xs text-[#7890a3]">Date</p>
-                      <p className="mt-1 font-semibold">28 Aug 2026</p>
+                      <p className="mt-1 font-semibold">31 Aug 2026</p>
                     </div>
 
                     <div className="rounded-xl bg-[#f7fafc] p-3">
