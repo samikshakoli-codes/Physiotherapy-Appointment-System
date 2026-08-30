@@ -1,5 +1,13 @@
 # PhysioCare — Physiotherapy Appointment System
 
+[![Release](https://img.shields.io/github/v/release/samikshakoli-codes/Physiotherapy-Appointment-System)](https://github.com/samikshakoli-codes/Physiotherapy-Appointment-System/releases)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-success)](https://physiotherapy-appointment-system-neon.vercel.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-blue)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-blue)](https://www.postgresql.org/)
+[![Drizzle ORM](https://img.shields.io/badge/ORM-Drizzle-orange)](https://orm.drizzle.team/)
+[![Vercel](https://img.shields.io/badge/Deployed-Vercel-black)](https://vercel.com/)
+
 **PhysioCare** is a full-stack web application for managing physiotherapy appointments between patients and physiotherapists.
 
 The system provides separate role-based workflows for **Patients** and **Physiotherapists**, including authentication, email verification, physiotherapist availability management, appointment booking, payment processing, appointment sequencing, profile management, and transactional email notifications.
