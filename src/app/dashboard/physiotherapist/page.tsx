@@ -62,20 +62,16 @@ export default async function PhysiotherapistDashboard() {
      TODAY'S DATE
   ========================= */
 
-  const today =
-    new Date()
-      .toISOString()
-      .split("T")[0];
+  const now = new Date();
 
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(
-    tomorrowDate.getDate() + 1
-  );
+const today = `${now.getFullYear()}-${String(
+  now.getMonth() + 1
+).padStart(2, "0")}-${String(
+  now.getDate()
+).padStart(2, "0")}`;
 
-  const tomorrow =
-    tomorrowDate
-      .toISOString()
-      .split("T")[0];
+console.log("SERVER DATE:", today);
+console.log("SERVER TIME:", new Date().toString());
 
   /* =========================
      APPOINTMENTS
@@ -130,6 +126,10 @@ export default async function PhysiotherapistDashboard() {
         appointment.date === today &&
         appointment.status === "CONFIRMED"
     );
+
+    console.log("TODAY:", today);
+console.log("ALL APPOINTMENTS:", allAppointments);
+console.log("TODAY'S APPOINTMENTS:", todaysAppointments);
 
   /* =========================
      UPCOMING APPOINTMENTS
@@ -256,12 +256,21 @@ export default async function PhysiotherapistDashboard() {
 
         <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-xl font-semibold">
-            Today's Appointments
-          </h3>
+  Today's Appointments
+</h3>
 
-          <p className="mt-1 text-sm text-slate-500">
-            View and manage your appointments for today.
-          </p>
+<p className="mt-1 text-sm text-slate-500">
+  {new Date(`${today}T00:00:00`).toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })}
+</p>
+
+<p className="mt-1 text-sm text-slate-500">
+  View and manage your appointments for today.
+</p>
 
           {todaysAppointments.length === 0 ? (
             <div className="mt-6 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">

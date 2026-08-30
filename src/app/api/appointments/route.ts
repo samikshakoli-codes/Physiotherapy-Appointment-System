@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq, gte } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -28,6 +28,14 @@ export async function GET() {
         { status: 401 }
       );
     }
+
+    const now = new Date();
+
+const today = `${now.getFullYear()}-${String(
+  now.getMonth() + 1
+).padStart(2, "0")}-${String(
+  now.getDate()
+).padStart(2, "0")}`;
 
     if (currentUser.role === "PATIENT") {
       const patient = await db
@@ -81,11 +89,21 @@ export async function GET() {
           )
         )
         .where(
-          eq(
-            appointments.patientId,
-            patient[0].id
-          )
-        );
+  and(
+    eq(
+      appointments.patientId,
+      patient[0].id
+    ),
+    gte(
+      appointments.appointmentDate,
+      today
+    )
+  )
+)
+.orderBy(
+  asc(appointments.appointmentDate),
+  asc(appointments.startTime)
+);
 
       return NextResponse.json({
         success: true,
@@ -122,22 +140,18 @@ export async function GET() {
       }
 
       const physiotherapistAppointments =
-        await db
-          .select({
-            id: appointments.id,
-            date:
-              appointments.appointmentDate,
-            startTime:
-              appointments.startTime,
-            endTime:
-              appointments.endTime,
-            amount: appointments.amount,
-            status:
-              appointments.status,
-            patientName: users.name,
-            patientContact:
-              patientProfiles.contactNumber,
-          })
+  await db
+    .select({
+      id: appointments.id,
+      date: appointments.appointmentDate,
+      startTime: appointments.startTime,
+      endTime: appointments.endTime,
+      amount: appointments.amount,
+      status: appointments.status,
+      sequence: appointments.sequence,
+      patientName: users.name,
+      patientContact: patientProfiles.contactNumber,
+    })
           .from(appointments)
           .innerJoin(
             patientProfiles,
@@ -154,11 +168,12 @@ export async function GET() {
             )
           )
           .where(
-            eq(
-              appointments.physiotherapistId,
-              physiotherapist[0].id
-            )
-          );
+  eq(
+    appointments.physiotherapistId,
+    physiotherapist[0].id
+  )
+)
+.orderBy(asc(appointments.sequence));
 
       return NextResponse.json({
         success: true,
