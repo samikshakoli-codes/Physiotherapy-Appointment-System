@@ -5,7 +5,6 @@ import { and, asc, eq, gte } from "drizzle-orm";
 
 import { getCurrentUser } from "@/lib/get-current-user";
 import { db } from "@/db";
-import ReorderButtons from "./ReorderButtons";
 import {
   appointments,
   availabilitySlots,
@@ -440,6 +439,12 @@ console.log("TODAY'S APPOINTMENTS:", todaysAppointments);
             >
               Manage Days Off
             </Link>
+            <Link
+  href="/dashboard/physiotherapist/profile"
+  className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+>
+  Profile & Fees
+</Link>
           </div>
         </div>
       </section>

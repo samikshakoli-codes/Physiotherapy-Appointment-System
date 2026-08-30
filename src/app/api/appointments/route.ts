@@ -10,6 +10,8 @@ import {
   users,
 } from "@/db/schema";
 import { getCurrentUser } from "@/lib/get-current-user";
+import { sendBookingConfirmationEmails } from "@/lib/booking-email";
+
 
 /* =========================
    GET PATIENT APPOINTMENTS
@@ -256,17 +258,26 @@ export async function POST(
     ========================= */
 
     const patient = await db
-      .select({
-        id: patientProfiles.id,
-      })
-      .from(patientProfiles)
-      .where(
-        eq(
-          patientProfiles.userId,
-          currentUser.userId
-        )
-      )
-      .limit(1);
+  .select({
+    id: patientProfiles.id,
+    name: users.name,
+    email: users.email,
+  })
+  .from(patientProfiles)
+  .innerJoin(
+    users,
+    eq(
+      patientProfiles.userId,
+      users.id
+    )
+  )
+  .where(
+    eq(
+      patientProfiles.userId,
+      currentUser.userId
+    )
+  )
+  .limit(1);
 
     if (patient.length === 0) {
       return NextResponse.json(
@@ -283,35 +294,44 @@ export async function POST(
     ========================= */
 
     const slot = await db
-      .select({
-        id: availabilitySlots.id,
-        physiotherapistId:
-          availabilitySlots.physiotherapistId,
-        date:
-          availabilitySlots.slotDate,
-        startTime:
-          availabilitySlots.startTime,
-        endTime:
-          availabilitySlots.endTime,
-        status:
-          availabilitySlots.status,
-        fees:
-          physiotherapistProfiles.feesPerAppointment,
-      })
+  .select({
+  id: availabilitySlots.id,
+  physiotherapistId:
+    availabilitySlots.physiotherapistId,
+  date:
+    availabilitySlots.slotDate,
+  startTime:
+    availabilitySlots.startTime,
+  endTime:
+    availabilitySlots.endTime,
+  status:
+    availabilitySlots.status,
+  fees:
+    physiotherapistProfiles.feesPerAppointment,
+  physiotherapistName: users.name,
+  physiotherapistEmail: users.email,
+})
       .from(availabilitySlots)
-      .innerJoin(
-        physiotherapistProfiles,
-        eq(
-          availabilitySlots.physiotherapistId,
-          physiotherapistProfiles.id
-        )
-      )
-      .where(
-        eq(
-          availabilitySlots.id,
-          slotId
-        )
-      )
+.innerJoin(
+  physiotherapistProfiles,
+  eq(
+    availabilitySlots.physiotherapistId,
+    physiotherapistProfiles.id
+  )
+)
+.innerJoin(
+    users,
+    eq(
+      physiotherapistProfiles.userId,
+      users.id
+    )
+  )
+.where(
+  eq(
+    availabilitySlots.id,
+    slotId
+  )
+)
       .limit(1);
 
     if (slot.length === 0) {
@@ -451,16 +471,42 @@ export async function POST(
         }
       );
 
-    return NextResponse.json(
-      {
-        success: true,
-        message:
-          "Appointment booked successfully",
-        appointment:
-          createdAppointment,
-      },
-      { status: 201 }
-    );
+      // NEW
+try {
+  await sendBookingConfirmationEmails({
+    patientName: patient[0].name,
+    patientEmail: patient[0].email,
+    physiotherapistName:
+      selectedSlot.physiotherapistName,
+    physiotherapistEmail:
+      selectedSlot.physiotherapistEmail,
+    appointmentDate:
+      createdAppointment.date,
+    startTime:
+      createdAppointment.startTime,
+    endTime:
+      createdAppointment.endTime,
+    amount:
+      createdAppointment.amount,
+  });
+} catch (emailError) {
+  console.error(
+    "Appointment was created, but confirmation email failed:",
+    emailError
+  );
+}
+
+      return NextResponse.json(
+  {
+    success: true,
+    message:
+      "Appointment booked successfully",
+    appointment:
+      createdAppointment,
+  },
+  { status: 201 }
+);
+
   } catch (error) {
     if (
       error instanceof Error &&
