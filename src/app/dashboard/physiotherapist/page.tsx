@@ -1,9 +1,11 @@
+import AppointmentSequenceControls from "./AppointmentSequenceControls";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { and, asc, eq, gte } from "drizzle-orm";
 
 import { getCurrentUser } from "@/lib/get-current-user";
 import { db } from "@/db";
+import ReorderButtons from "./ReorderButtons";
 import {
   appointments,
   availabilitySlots,
@@ -19,6 +21,7 @@ type Appointment = {
   endTime: string;
   amount: string;
   status: string;
+  sequence: number;
   patientName: string;
   patientContact: string;
 };
@@ -78,18 +81,19 @@ console.log("SERVER TIME:", new Date().toString());
   ========================= */
 
   const allAppointments =
-    await db
-      .select({
-        id: appointments.id,
-        date: appointments.appointmentDate,
-        startTime: appointments.startTime,
-        endTime: appointments.endTime,
-        amount: appointments.amount,
-        status: appointments.status,
-        patientName: users.name,
-        patientContact:
-          patientProfiles.contactNumber,
-      })
+  await db
+    .select({
+      id: appointments.id,
+date: appointments.appointmentDate,
+startTime: appointments.startTime,
+endTime: appointments.endTime,
+amount: appointments.amount,
+status: appointments.status,
+sequence: appointments.sequence,
+      patientName: users.name,
+      patientContact:
+        patientProfiles.contactNumber,
+    })
       .from(appointments)
       .innerJoin(
         patientProfiles,
@@ -112,19 +116,23 @@ console.log("SERVER TIME:", new Date().toString());
         )
       )
       .orderBy(
-        asc(appointments.appointmentDate),
-        asc(appointments.startTime)
-      );
+  asc(appointments.appointmentDate),
+  asc(appointments.sequence)
+);
 
   /* =========================
      TODAY'S APPOINTMENTS
   ========================= */
 
   const todaysAppointments =
-    allAppointments.filter(
+  allAppointments
+    .filter(
       (appointment) =>
         appointment.date === today &&
         appointment.status === "CONFIRMED"
+    )
+    .sort(
+      (a, b) => a.sequence - b.sequence
     );
 
     console.log("TODAY:", today);
@@ -291,9 +299,20 @@ console.log("TODAY'S APPOINTMENTS:", todaysAppointments);
               {todaysAppointments.map(
                 (appointment: Appointment) => (
                   <div
-                    key={appointment.id}
-                    className="rounded-xl border border-slate-200 p-5"
-                  >
+  key={appointment.id}
+  className="rounded-xl border border-slate-200 p-5"
+>
+    <div className="mb-4 flex justify-end">
+  <AppointmentSequenceControls
+    appointmentId={appointment.id}
+    sequence={appointment.sequence}
+    isFirst={appointment.sequence === 1}
+    isLast={
+      appointment.sequence ===
+      todaysAppointments.length
+    }
+  />
+</div>
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                       <div>
                         <h4 className="font-semibold text-slate-900">
@@ -318,15 +337,19 @@ console.log("TODAY'S APPOINTMENTS:", todaysAppointments);
                         </p>
                       </div>
 
-                      <div className="text-left sm:text-right">
-                        <span className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
-                          {appointment.status}
-                        </span>
+                      <div className="flex flex-col items-start gap-3 sm:items-end">
+  <div className="text-left sm:text-right">
+    <span className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+      {appointment.status}
+    </span>
 
-                        <p className="mt-2 font-semibold text-slate-900">
-                          ₹{appointment.amount}
-                        </p>
-                      </div>
+    <p className="mt-2 font-semibold text-slate-900">
+      ₹{appointment.amount}
+    </p>
+  </div>
+
+  
+</div>
                     </div>
                   </div>
                 )

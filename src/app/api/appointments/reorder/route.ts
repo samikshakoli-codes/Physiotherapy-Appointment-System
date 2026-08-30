@@ -161,9 +161,9 @@ export async function POST(request: NextRequest) {
           )
         )
         .orderBy(
-          asc(appointments.startTime),
-          asc(appointments.id)
-        );
+  asc(appointments.sequence),
+  asc(appointments.id)
+);
 
     if (sameDayAppointments.length <= 1) {
       return NextResponse.json({
