@@ -1,6 +1,6 @@
 # PhysioCare — Physiotherapy Appointment System
 
-[![Release](https://img.shields.io/github/v/release/samikshakoli-codes/Physiotherapy-Appointment-System?display_name=tag&label=Release)](https://github.com/samikshakoli-codes/Physiotherapy-Appointment-System/releases)
+[![Release](https://img.shields.io/badge/Release-v1.0.0-blue)](https://github.com/samikshakoli-codes/Physiotherapy-Appointment-System/releases/tag/v1.0.0)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-success)](https://physiotherapy-appointment-system-neon.vercel.app/)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-blue)](https://www.typescriptlang.org/)
